@@ -7,9 +7,7 @@
 ---
 
 ## Features
-
-- View history from Safari, Chrome, and Arc
-- Combined timeline with date filtering
+- Supports Safari, Chrome, and Arc
 - Customizable history DB paths
 - Local-only, read-only access
 
