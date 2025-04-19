@@ -17,7 +17,9 @@ struct BrowserHistoryConfiguration {
     subscript(_ kind: BrowserKind) -> String? {
         paths[kind]
     }
-    
+}
+
+extension BrowserHistoryConfiguration {
     static let defaultPaths: [BrowserKind: String] = [
         .safari: "~/Library/Safari/History.db",
         .chrome: "~/Library/Application Support/Google/Chrome/Default/History",

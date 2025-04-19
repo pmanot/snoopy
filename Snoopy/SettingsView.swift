@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("safariPath") var safariPath: String = "~/Library/Safari/History.db"
-    @AppStorage("chromePath") var chromePath: String = "~/Library/Application Support/Google/Chrome/Default/History"
-    @AppStorage("arcPath") var arcPath: String = #"~/Library/Application Support/Arc/User Data/Default/History"#
+    @AppStorage("safariPath") var safariPath: String = BrowserKind.safari.defaultPath
+    @AppStorage("chromePath") var chromePath: String = BrowserKind.chrome.defaultPath
+    @AppStorage("arcPath") var arcPath: String = BrowserKind.arc.defaultPath
     
     var body: some View {
         Form {

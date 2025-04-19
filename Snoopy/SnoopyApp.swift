@@ -11,7 +11,7 @@ import SwiftUI
 struct SnoopyApp: App {
     var body: some Scene {
         WindowGroup {
-            RootView()
+            ContentView()
         }
         Settings {
             SettingsView()
