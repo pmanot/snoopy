@@ -12,7 +12,7 @@ struct ContentView: View {
     @AppStorage("chromePath") var chromePath: String = "~/Library/Application Support/Google/Chrome/Default/History"
     @AppStorage("arcPath") var arcPath: String = "~/Library/Application Support/Arc/User Data/Default/History"
     
-    enum Browser: String, CaseIterable, Identifiable {
+    enum Tab: String, CaseIterable, Identifiable {
         case safari, chrome, arc, all
         var id: String { rawValue }
         var iconName: String {
@@ -34,19 +34,21 @@ struct ContentView: View {
         }
     }
     
-    @State private var selection: Browser? = .all
+    @State private var selection: Tab? = .all
     @State private var store = BrowserHistoryStore()
     
     var body: some View {
         NavigationSplitView {
-            List(Browser.allCases, selection: $selection) { browser in
+            List(Tab.allCases, selection: $selection) { browser in
                 Label(browser.rawValue.capitalized, systemImage: browser.iconName)
                     .tag(browser, includeOptional: true)
             }
             .navigationTitle("Browsers")
+            .scrollContentBackground(.hidden)
         } detail: {
             TableView(filter: selection?.kind)
                 .environment(store)
+                .background(Material.bar)
         }
     }
 }
@@ -65,32 +67,45 @@ extension ContentView {
         }
         
         var body: some View {
-            VStack(alignment: .leading) {
-                HStack {
+            Table(filteredEntries) {
+                TableColumn("Browser") { item in
+                    Text(item.browser.rawValue.capitalized)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                TableColumn("Title") { item in
+                    Text(item.title).lineLimit(1)
+                }
+                TableColumn("URL") { item in
+                    Text(item.url).foregroundStyle(.gray).lineLimit(1)
+                }
+                TableColumn("Visit Time") { item in
+                    Text(item.visitTime.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .toolbarBackgroundVisibility(.visible, for: .windowToolbar)
+            .toolbarBackground(.bar, for: .windowToolbar)
+            .toolbar {
+                ToolbarItemGroup(placement: .navigation) {
                     DatePicker("From", selection: $fromDate, displayedComponents: .date)
+
                     DatePicker("To", selection: $toDate, displayedComponents: .date)
+
+                    Spacer()
+                    
                     Button("Load") {
                         store.fetchHistory(from: fromDate, to: toDate)
                     }
+                    .controlSize(.large)
                 }
-                .padding()
                 
-                Table(filteredEntries) {
-                    TableColumn("Browser") { item in
-                        Text(item.browser.rawValue.capitalized)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Export") {
+                        
                     }
-                    TableColumn("Title") { item in
-                        Text(item.title).lineLimit(1)
-                    }
-                    TableColumn("URL") { item in
-                        Text(item.url).foregroundStyle(.gray).lineLimit(1)
-                    }
-                    TableColumn("Visit Time") { item in
-                        Text(item.visitTime.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption)
-                    }
+                    .controlSize(.large)
                 }
             }
             .task {
