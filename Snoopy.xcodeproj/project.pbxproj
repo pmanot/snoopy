@@ -6,13 +6,32 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		98BA520A2DB4693700AC0EC7 /* MacroBuilder in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA52092DB4693700AC0EC7 /* MacroBuilder */; };
+		98BA520C2DB4693700AC0EC7 /* Swallow in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA520B2DB4693700AC0EC7 /* Swallow */; };
+		98BA520E2DB4693700AC0EC7 /* SwallowMacrosClient in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA520D2DB4693700AC0EC7 /* SwallowMacrosClient */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		985104222DB205900076D128 /* Snoopy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Snoopy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		98BA52102DB46AE200AC0EC7 /* Exceptions for "Snoopy" folder in "Snoopy" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 985104212DB205900076D128 /* Snoopy */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		985104242DB205900076D128 /* Snoopy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				98BA52102DB46AE200AC0EC7 /* Exceptions for "Snoopy" folder in "Snoopy" target */,
+			);
 			path = Snoopy;
 			sourceTree = "<group>";
 		};
@@ -23,6 +42,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98BA520C2DB4693700AC0EC7 /* Swallow in Frameworks */,
+				98BA520E2DB4693700AC0EC7 /* SwallowMacrosClient in Frameworks */,
+				98BA520A2DB4693700AC0EC7 /* MacroBuilder in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +87,9 @@
 			);
 			name = Snoopy;
 			packageProductDependencies = (
+				98BA52092DB4693700AC0EC7 /* MacroBuilder */,
+				98BA520B2DB4693700AC0EC7 /* Swallow */,
+				98BA520D2DB4693700AC0EC7 /* SwallowMacrosClient */,
 			);
 			productName = Snoopy;
 			productReference = 985104222DB205900076D128 /* Snoopy.app */;
@@ -94,6 +119,9 @@
 			);
 			mainGroup = 985104192DB205900076D128;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 985104232DB205900076D128 /* Products */;
 			projectDirPath = "";
@@ -253,6 +281,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Snoopy/Info.plist;
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "Required to access history.db";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -272,10 +302,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Debug;
@@ -292,6 +322,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Snoopy/Info.plist;
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "Required to access history.db";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -311,10 +343,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Release;
@@ -341,6 +373,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vmanot/Swallow.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		98BA52092DB4693700AC0EC7 /* MacroBuilder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */;
+			productName = MacroBuilder;
+		};
+		98BA520B2DB4693700AC0EC7 /* Swallow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */;
+			productName = Swallow;
+		};
+		98BA520D2DB4693700AC0EC7 /* SwallowMacrosClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */;
+			productName = SwallowMacrosClient;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9851041A2DB205900076D128 /* Project object */;
 }

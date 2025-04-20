@@ -17,14 +17,14 @@ enum BrowserKind: String, CaseIterable, Codable {
         }
     }
     
-    var defaultPath: String {
+    var defaultURL: URL {
         switch self {
             case .safari:
-                return "~/Library/Safari/History.db"
+                return URL.homeDirectory.appending("Library/Safari").appending(path: "History.db", directoryHint: .notDirectory)
             case .chrome:
-                return "~/Library/Application Support/Google/Chrome/Default/History"
+                return URL.homeDirectory.appending("Library/Application Support/Google/Chrome/Default").appending(path: "History", directoryHint: .notDirectory)
             case .arc:
-                return "~/Library/Application Support/Arc/User Data/Default/History"
+                return URL.homeDirectory.appending("Library/Application Support/Arc/User Data/Default").appending(path: "History", directoryHint: .notDirectory)
         }
     }
 }
@@ -41,3 +41,4 @@ extension BrowserKind: CustomStringConvertible {
         }
     }
 }
+

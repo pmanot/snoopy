@@ -1,10 +1,3 @@
-//
-//  Safari.swift
-//  Snoopy
-//
-//  Created by Purav Manot on 17/04/25.
-//
-
 import Foundation
 import SQLite3
 

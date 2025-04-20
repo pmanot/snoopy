@@ -8,21 +8,13 @@
 import Foundation
 
 struct BrowserHistoryConfiguration {
-    var paths: [BrowserKind: String]
+    var urls: [BrowserKind: URL]
     
-    init(paths: [BrowserKind: String] = Self.defaultPaths) {
-        self.paths = paths
+    init() {
+        self.urls = Dictionary(uniqueKeysWithValues: BrowserKind.allCases.map { ($0, $0.defaultURL) })
     }
     
-    subscript(_ kind: BrowserKind) -> String? {
-        paths[kind]
+    subscript(_ kind: BrowserKind) -> URL? {
+        urls[kind]
     }
-}
-
-extension BrowserHistoryConfiguration {
-    static let defaultPaths: [BrowserKind: String] = [
-        .safari: "~/Library/Safari/History.db",
-        .chrome: "~/Library/Application Support/Google/Chrome/Default/History",
-        .arc: "~/Library/Application Support/Arc/User Data/Default/History"
-    ]
 }

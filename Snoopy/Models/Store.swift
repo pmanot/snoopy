@@ -11,28 +11,18 @@ import Foundation
 final class BrowserHistoryStore {
     private(set) var entries: [BrowserHistoryEntry] = []
     
-    func fetchHistory(from startDate: Date, to endDate: Date, using config: BrowserHistoryConfiguration = .init()) {
+    @MainActor
+    func fetchHistory(from startDate: Date, to endDate: Date, using config: BrowserHistoryConfiguration = .init()) throws {
         var result: [BrowserHistoryEntry] = []
         
-        for (kind, path) in config.paths {
-            guard FileManager.default.fileExists(atPath: NSString(string: path).expandingTildeInPath) else { continue }
-            
+        for (kind, url) in config.urls {
             let entriesForKind: [BrowserHistoryEntry]
             
             switch kind.engine {
                 case .webkit:
-                    entriesForKind = SafariHistoryProvider.readHistory(from: startDate, to: endDate, at: path)
+                    entriesForKind = try SafariHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
                 case .chromium:
-                    let adjustedKind = kind // override default browserKind if needed
-                    entriesForKind = ChromeHistoryProvider.readHistory(from: startDate, to: endDate, at: path)
-                        .map { entry in
-                            BrowserHistoryEntry(
-                                title: entry.title,
-                                url: entry.url,
-                                visitTime: entry.visitTime,
-                                browser: adjustedKind
-                            )
-                        }
+                    entriesForKind = try ChromeHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
             }
             
             result.append(contentsOf: entriesForKind)

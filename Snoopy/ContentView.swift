@@ -5,6 +5,7 @@
 //  Created by Purav Manot on 17/04/25.
 //
 
+import Diagnostics
 import SwiftUI
 
 struct ContentView: View {
@@ -96,7 +97,9 @@ extension ContentView {
                     Spacer()
                     
                     Button("Load") {
-                        store.fetchHistory(from: fromDate, to: toDate)
+                        #try(.optimistic) {
+                            try store.fetchHistory(from: fromDate, to: toDate)
+                        }
                     }
                     .controlSize(.large)
                 }
@@ -109,7 +112,13 @@ extension ContentView {
                 }
             }
             .task {
-                store.fetchHistory(from: fromDate, to: toDate)
+                Task {
+                    do {
+                        try store.fetchHistory(from: fromDate, to: toDate)
+                    } catch {
+                        runtimeIssue(error)
+                    }
+                }
             }
         }
     }
