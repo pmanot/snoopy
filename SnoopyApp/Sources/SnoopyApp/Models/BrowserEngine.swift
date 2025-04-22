@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum BrowserEngine {
+public enum BrowserEngine {
     case webkit
     case chromium
     
-    var query: String {
+    public var query: String {
         switch self {
             case .webkit:
                 return """
@@ -32,28 +32,28 @@ enum BrowserEngine {
         }
     }
     
-    var urlColumnIndex: Int32 {
+    public var urlColumnIndex: Int32 {
         switch self {
             case .webkit: return 1
             case .chromium: return 0
         }
     }
     
-    var titleColumnIndex: Int32 {
+    public var titleColumnIndex: Int32 {
         switch self {
             case .webkit: return 2
             case .chromium: return 1
         }
     }
     
-    var timeColumnIndex: Int32 {
+    public var timeColumnIndex: Int32 {
         switch self {
             case .webkit: return 3
             case .chromium: return 2
         }
     }
     
-    func decodeVisitTime(_ raw: Double) -> Date {
+    public func decodeVisitTime(_ raw: Double) -> Date {
         switch self {
             case .webkit:
                 return Date(timeIntervalSince1970: raw + 978307200)
@@ -62,7 +62,7 @@ enum BrowserEngine {
         }
     }
     
-    func encodeBounds(start: Date, end: Date) -> (Double, Double) {
+    public func encodeBounds(start: Date, end: Date) -> (Double, Double) {
         switch self {
             case .webkit:
                 let base = Date(timeIntervalSince1970: 978307200)
@@ -75,7 +75,7 @@ enum BrowserEngine {
         }
     }
     
-    var defaultBrowserKind: BrowserKind {
+    public var defaultBrowserKind: BrowserKind {
         switch self {
             case .webkit: return .safari
             case .chromium: return .chrome // can override downstream if needed

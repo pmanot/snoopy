@@ -6,6 +6,7 @@
 //
 
 import Diagnostics
+import SnoopyApp
 import SwiftUI
 
 struct ContentView: View {
@@ -37,6 +38,7 @@ struct ContentView: View {
     
     @State private var selection: Tab? = .all
     @State private var store = BrowserHistoryStore()
+    @State private var showExportSheet: Bool = false
     
     var body: some View {
         NavigationSplitView {
@@ -47,9 +49,13 @@ struct ContentView: View {
             .navigationTitle("Browsers")
             .scrollContentBackground(.hidden)
         } detail: {
-            TableView(filter: selection?.kind)
+            TableView(showExportSheet: $showExportSheet, filter: selection?.kind)
                 .environment(store)
                 .background(Material.bar)
+        }
+        .popover(isPresented: $showExportSheet) {
+            DomainSelectionView(domains: store.domains())
+                .presentationCompactAdaptation(.popover)
         }
     }
 }
@@ -59,6 +65,8 @@ extension ContentView {
         @Environment(BrowserHistoryStore.self) var store: BrowserHistoryStore
         @State private var fromDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
         @State private var toDate: Date = Date()
+        
+        @Binding var showExportSheet: Bool
         
         var filter: BrowserKind? = nil
         
@@ -74,12 +82,15 @@ extension ContentView {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                
                 TableColumn("Title") { item in
                     Text(item.title).lineLimit(1)
                 }
+                
                 TableColumn("URL") { item in
                     Text(item.url).foregroundStyle(.gray).lineLimit(1)
                 }
+                
                 TableColumn("Visit Time") { item in
                     Text(item.visitTime.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
@@ -106,7 +117,7 @@ extension ContentView {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button("Export") {
-                        
+                        showExportSheet = true
                     }
                     .controlSize(.large)
                 }

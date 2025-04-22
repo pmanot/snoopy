@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SnoopyApp
 
 struct SettingsView: View {
     @AppStorage("safariPath") var safariPath: String = BrowserKind.safari.defaultURL.path()

@@ -12,14 +12,18 @@ import SQLite3
 import AppKit
 
 protocol BrowserHistoryProvider {
-    static var engine: BrowserEngine { get }
+    static var kind: BrowserKind { get }
     @MainActor
     static func readHistory(from: Date, to: Date, at url: URL) throws -> [BrowserHistoryEntry]
 }
 
 extension BrowserHistoryProvider {
     @MainActor
-    static func readHistory(from: Date, to: Date, at url: URL) throws -> [BrowserHistoryEntry] {
+    static func readHistory(
+        from: Date,
+        to: Date,
+        at url: URL
+    ) throws -> [BrowserHistoryEntry] {
         let directory: URL = url._unsandboxedURL.deletingLastPathComponent()
         
         return try FileManager.default.withUserGrantedAccess(to: directory, scope: .directory) { newURL in
@@ -31,8 +35,8 @@ extension BrowserHistoryProvider {
     private static func readHistoryInternal(from: Date, to: Date, dbURL: URL) throws -> [BrowserHistoryEntry] {
         var results: [BrowserHistoryEntry] = []
         
-        let query = engine.query
-        let (lower, upper) = engine.encodeBounds(start: from, end: to)
+        let query = kind.engine.query
+        let (lower, upper) = kind.engine.encodeBounds(start: from, end: to)
         
         var db: OpaquePointer?
         var statement: OpaquePointer?
@@ -57,7 +61,7 @@ extension BrowserHistoryProvider {
         defer { sqlite3_finalize(statement) }
         
         // Bind parameters
-        if engine.defaultBrowserKind == .chrome || engine.defaultBrowserKind == .arc {
+        if kind.engine.defaultBrowserKind == .chrome || kind.engine.defaultBrowserKind == .arc {
             // For Chromium, we need to bind int64 parameters
             sqlite3_bind_int64(statement, 1, Int64(lower))
             sqlite3_bind_int64(statement, 2, Int64(upper))
@@ -72,29 +76,31 @@ extension BrowserHistoryProvider {
             let stepResult = sqlite3_step(statement)
             
             if stepResult == SQLITE_ROW {
-                guard let urlCStr = sqlite3_column_text(statement, engine.urlColumnIndex) else {
+                guard let urlCStr = sqlite3_column_text(statement, kind.engine.urlColumnIndex) else {
                     continue
                 }
                 
                 let url = String(cString: urlCStr)
-                let title = sqlite3_column_text(statement, engine.titleColumnIndex).map { String(cString: $0) } ?? "(no title)"
+                let title = sqlite3_column_text(statement, kind.engine.titleColumnIndex).map { String(cString: $0) } ?? "(no title)"
                 
                 // Handle time differently based on browser engine
                 let visitTime: Date
-                if engine.defaultBrowserKind == .chrome || engine.defaultBrowserKind == .arc {
-                    let rawTime = sqlite3_column_int64(statement, engine.timeColumnIndex)
-                    visitTime = engine.decodeVisitTime(Double(rawTime))
+                if kind.engine == .chromium {
+                    let rawTime = sqlite3_column_int64(statement, kind.engine.timeColumnIndex)
+                    visitTime = kind.engine.decodeVisitTime(Double(rawTime))
                 } else {
-                    let rawTime = sqlite3_column_double(statement, engine.timeColumnIndex)
-                    visitTime = engine.decodeVisitTime(rawTime)
+                    let rawTime = sqlite3_column_double(statement, kind.engine.timeColumnIndex)
+                    visitTime = kind.engine.decodeVisitTime(rawTime)
                 }
                 
-                results.append(.init(
-                    title: title,
-                    url: url,
-                    visitTime: visitTime,
-                    browser: engine.defaultBrowserKind
-                ))
+                results.append(
+                    .init(
+                        title: title,
+                        url: url,
+                        visitTime: visitTime,
+                        browser: kind
+                    )
+                )
             } else if stepResult == SQLITE_DONE {
                 break
             } else {
@@ -159,25 +165,6 @@ extension URL {
         }
         
         return result
-    }
-}
-
-extension FileManager {
-    public func _withTemporaryCopy<Result>(
-        of url: URL,
-        perform body: (URL) throws -> Result
-    ) throws -> Result {
-        let tempDirectoryURL = FileManager.default.temporaryDirectory
-        let tempFileURL = tempDirectoryURL.appendingPathComponent(UUID().uuidString).appendingPathComponent(url.lastPathComponent)
-        try copyItem(at: url, to: tempFileURL)
-        
-        do {
-            let result = try body(tempFileURL)
-            
-            return result
-        } catch {
-            throw error
-        }
     }
 }
 

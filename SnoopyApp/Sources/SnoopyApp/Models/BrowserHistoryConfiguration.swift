@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct BrowserHistoryConfiguration {
-    var urls: [BrowserKind: URL]
+public struct BrowserHistoryConfiguration {
+    public var urls: [BrowserKind: URL]
     
-    init() {
+    public init() {
         self.urls = Dictionary(uniqueKeysWithValues: BrowserKind.allCases.map { ($0, $0.defaultURL) })
     }
     
-    subscript(_ kind: BrowserKind) -> URL? {
+    public subscript(_ kind: BrowserKind) -> URL? {
         urls[kind]
     }
 }

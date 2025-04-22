@@ -10,6 +10,8 @@
 		98BA520A2DB4693700AC0EC7 /* MacroBuilder in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA52092DB4693700AC0EC7 /* MacroBuilder */; };
 		98BA520C2DB4693700AC0EC7 /* Swallow in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA520B2DB4693700AC0EC7 /* Swallow */; };
 		98BA520E2DB4693700AC0EC7 /* SwallowMacrosClient in Frameworks */ = {isa = PBXBuildFile; productRef = 98BA520D2DB4693700AC0EC7 /* SwallowMacrosClient */; };
+		98C0AD372DB7249700345F2F /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = 98C0AD362DB7249700345F2F /* SwiftUIX */; };
+		98C0AD3A2DB724A500345F2F /* SnoopyApp in Frameworks */ = {isa = PBXBuildFile; productRef = 98C0AD392DB724A500345F2F /* SnoopyApp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,7 +46,9 @@
 			files = (
 				98BA520C2DB4693700AC0EC7 /* Swallow in Frameworks */,
 				98BA520E2DB4693700AC0EC7 /* SwallowMacrosClient in Frameworks */,
+				98C0AD3A2DB724A500345F2F /* SnoopyApp in Frameworks */,
 				98BA520A2DB4693700AC0EC7 /* MacroBuilder in Frameworks */,
+				98C0AD372DB7249700345F2F /* SwiftUIX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +94,8 @@
 				98BA52092DB4693700AC0EC7 /* MacroBuilder */,
 				98BA520B2DB4693700AC0EC7 /* Swallow */,
 				98BA520D2DB4693700AC0EC7 /* SwallowMacrosClient */,
+				98C0AD362DB7249700345F2F /* SwiftUIX */,
+				98C0AD392DB724A500345F2F /* SnoopyApp */,
 			);
 			productName = Snoopy;
 			productReference = 985104222DB205900076D128 /* Snoopy.app */;
@@ -121,6 +127,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */,
+				98C0AD352DB7249700345F2F /* XCRemoteSwiftPackageReference "SwiftUIX" */,
+				98C0AD382DB724A500345F2F /* XCLocalSwiftPackageReference "SnoopyApp" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 985104232DB205900076D128 /* Products */;
@@ -374,6 +382,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		98C0AD382DB724A500345F2F /* XCLocalSwiftPackageReference "SnoopyApp" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = SnoopyApp;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -381,6 +396,14 @@
 			requirement = {
 				branch = master;
 				kind = branch;
+			};
+		};
+		98C0AD352DB7249700345F2F /* XCRemoteSwiftPackageReference "SwiftUIX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftUIX/SwiftUIX";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -400,6 +423,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 98BA52082DB4693700AC0EC7 /* XCRemoteSwiftPackageReference "Swallow" */;
 			productName = SwallowMacrosClient;
+		};
+		98C0AD362DB7249700345F2F /* SwiftUIX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 98C0AD352DB7249700345F2F /* XCRemoteSwiftPackageReference "SwiftUIX" */;
+			productName = SwiftUIX;
+		};
+		98C0AD392DB724A500345F2F /* SnoopyApp */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnoopyApp;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
