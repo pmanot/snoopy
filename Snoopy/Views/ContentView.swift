@@ -14,28 +14,6 @@ struct ContentView: View {
     @AppStorage("chromePath") var chromePath: String = "~/Library/Application Support/Google/Chrome/Default/History"
     @AppStorage("arcPath") var arcPath: String = "~/Library/Application Support/Arc/User Data/Default/History"
     
-    enum Tab: String, CaseIterable, Identifiable {
-        case safari, chrome, arc, all
-        var id: String { rawValue }
-        var iconName: String {
-            switch self {
-                case .safari: return "safari"
-                case .chrome: return "globe"
-                case .arc: return "a.circle"
-                case .all: return "rectangle.stack"
-            }
-        }
-        
-        var kind: BrowserKind? {
-            switch self {
-                case .safari: return .safari
-                case .chrome: return .chrome
-                case .arc: return .arc
-                case .all: return nil
-            }
-        }
-    }
-    
     @State private var selection: Tab? = .all
     @State private var store = BrowserHistoryStore()
     @State private var showExportSheet: Bool = false
@@ -78,9 +56,13 @@ extension ContentView {
         var body: some View {
             Table(filteredEntries) {
                 TableColumn("Browser") { item in
-                    Text(item.browser.rawValue.capitalized)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Label {
+                        Text(item.browser.rawValue.capitalized)
+                    } icon: {
+                        Image(nsImage: item.browser.icon ?? NSImage())
+                    }
+                    .font(.body)
+                    .foregroundStyle(.secondary)
                 }
                 
                 TableColumn("Title") { item in
@@ -108,9 +90,12 @@ extension ContentView {
                     Spacer()
                     
                     Button("Load") {
-                        #try(.optimistic) {
-                            try store.fetchHistory(from: fromDate, to: toDate)
+                        Task {
+                            #try(.optimistic) {
+                                try await store.fetchHistory(from: fromDate, to: toDate)
+                            }
                         }
+                        
                     }
                     .controlSize(.large)
                 }
@@ -123,13 +108,37 @@ extension ContentView {
                 }
             }
             .task {
-                Task {
+                Task.detached {
                     do {
-                        try store.fetchHistory(from: fromDate, to: toDate)
+                        try await store.fetchHistory(from: fromDate, to: toDate)
                     } catch {
                         runtimeIssue(error)
                     }
                 }
+            }
+        }
+    }
+}
+
+extension ContentView {
+    enum Tab: String, CaseIterable, Identifiable {
+        case safari, chrome, arc, all
+        var id: String { rawValue }
+        var iconName: String {
+            switch self {
+                case .safari: return "safari"
+                case .chrome: return "globe"
+                case .arc: return "a.circle"
+                case .all: return "rectangle.stack"
+            }
+        }
+        
+        var kind: BrowserKind? {
+            switch self {
+                case .safari: return .safari
+                case .chrome: return .chrome
+                case .arc: return .arc
+                case .all: return nil
             }
         }
     }

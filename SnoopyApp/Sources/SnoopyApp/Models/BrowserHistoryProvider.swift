@@ -14,105 +14,104 @@ import AppKit
 protocol BrowserHistoryProvider {
     static var kind: BrowserKind { get }
     @MainActor
-    static func readHistory(from: Date, to: Date, at url: URL) throws -> [BrowserHistoryEntry]
+    static func readHistory(from: Date, to: Date, at url: URL) async throws -> [BrowserHistoryEntry]
 }
 
 extension BrowserHistoryProvider {
-    @MainActor
     static func readHistory(
         from: Date,
         to: Date,
         at url: URL
-    ) throws -> [BrowserHistoryEntry] {
-        let directory: URL = url._unsandboxedURL.deletingLastPathComponent()
+    ) async throws -> [BrowserHistoryEntry] {
+        let directory = url._unsandboxedURL.deletingLastPathComponent()
         
-        return try FileManager.default.withUserGrantedAccess(to: directory, scope: .directory) { newURL in
+        return try await FileManager.default.withUserGrantedAccess(to: directory, scope: .directory) { newURL in
             guard let copiedURL = newURL.copyToTempURL() else { return [] }
-            return try readHistoryInternal(from: from, to: to, dbURL: copiedURL.appending(path: url.lastPathComponent))
+            return try await readHistoryInternal(
+                from: from,
+                to: to,
+                dbURL: copiedURL.appending(path: url.lastPathComponent)
+            )
         }
     }
     
-    private static func readHistoryInternal(from: Date, to: Date, dbURL: URL) throws -> [BrowserHistoryEntry] {
+    // MARK: - Private
+    
+    /// Performs the heavy SQLite work off the main thread.
+    private static func readHistoryInternal(
+        from: Date,
+        to: Date,
+        dbURL: URL
+    ) async throws -> [BrowserHistoryEntry] {
+        try await Task.detached(priority: .high) {
+            try readHistorySync(from: from, to: to, dbURL: dbURL)
+        }.value
+    }
+    
+    /// Extracted synchronous query code.
+    private static func readHistorySync(
+        from: Date,
+        to: Date,
+        dbURL: URL
+    ) throws -> [BrowserHistoryEntry] {
         var results: [BrowserHistoryEntry] = []
-        
         let query = kind.engine.query
         let (lower, upper) = kind.engine.encodeBounds(start: from, end: to)
         
         var db: OpaquePointer?
         var statement: OpaquePointer?
         
-        // Open the database
-        let openResult = sqlite3_open(dbURL.path, &db)
-        guard openResult == SQLITE_OK else {
-            let errorMessage = sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error"
+        guard sqlite3_open_v2(
+            dbURL.path,
+            &db,
+            SQLITE_OPEN_READONLY | SQLITE_OPEN_NOMUTEX,
+            nil
+        ) == SQLITE_OK else {
+            let message = sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error"
             sqlite3_close(db)
             throw NSError(domain: "BrowserHistory", code: 1001,
-                          userInfo: [NSLocalizedDescriptionKey: "Failed to open database: \(errorMessage)"])
+                          userInfo: [NSLocalizedDescriptionKey: "Failed to open database: \(message)"])
         }
         defer { sqlite3_close(db) }
         
-        // Prepare the SQL statement
-        let prepareResult = sqlite3_prepare_v2(db, query, -1, &statement, nil)
-        guard prepareResult == SQLITE_OK else {
-            let errorMessage = sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error"
+        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
+            let message = sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error"
             throw NSError(domain: "BrowserHistory", code: 1002,
-                          userInfo: [NSLocalizedDescriptionKey: "Failed to prepare SQL statement: \(errorMessage)"])
+                          userInfo: [NSLocalizedDescriptionKey: "Failed to prepare SQL: \(message)"])
         }
         defer { sqlite3_finalize(statement) }
         
-        // Bind parameters
         if kind.engine.defaultBrowserKind == .chrome || kind.engine.defaultBrowserKind == .arc {
-            // For Chromium, we need to bind int64 parameters
             sqlite3_bind_int64(statement, 1, Int64(lower))
             sqlite3_bind_int64(statement, 2, Int64(upper))
         } else {
-            // For Safari, we use double parameters
             sqlite3_bind_double(statement, 1, lower)
             sqlite3_bind_double(statement, 2, upper)
         }
         
-        // Execute the query and process results
-        while true {
-            let stepResult = sqlite3_step(statement)
+        while sqlite3_step(statement) == SQLITE_ROW {
+            guard let urlCStr = sqlite3_column_text(statement, kind.engine.urlColumnIndex) else { continue }
+            let url = String(cString: urlCStr)
+            let title = sqlite3_column_text(statement, kind.engine.titleColumnIndex)
+                .map { String(cString: $0) } ?? "(no title)"
             
-            if stepResult == SQLITE_ROW {
-                guard let urlCStr = sqlite3_column_text(statement, kind.engine.urlColumnIndex) else {
-                    continue
-                }
-                
-                let url = String(cString: urlCStr)
-                let title = sqlite3_column_text(statement, kind.engine.titleColumnIndex).map { String(cString: $0) } ?? "(no title)"
-                
-                // Handle time differently based on browser engine
-                let visitTime: Date
+            let visitTime: Date = {
                 if kind.engine == .chromium {
-                    let rawTime = sqlite3_column_int64(statement, kind.engine.timeColumnIndex)
-                    visitTime = kind.engine.decodeVisitTime(Double(rawTime))
+                    let raw = sqlite3_column_int64(statement, kind.engine.timeColumnIndex)
+                    return kind.engine.decodeVisitTime(Double(raw))
                 } else {
-                    let rawTime = sqlite3_column_double(statement, kind.engine.timeColumnIndex)
-                    visitTime = kind.engine.decodeVisitTime(rawTime)
+                    let raw = sqlite3_column_double(statement, kind.engine.timeColumnIndex)
+                    return kind.engine.decodeVisitTime(raw)
                 }
-                
-                results.append(
-                    .init(
-                        title: title,
-                        url: url,
-                        visitTime: visitTime,
-                        browser: kind
-                    )
-                )
-            } else if stepResult == SQLITE_DONE {
-                break
-            } else {
-                let errorMessage = sqlite3_errmsg(db).map { String(cString: $0) } ?? "Unknown error"
-                throw NSError(domain: "BrowserHistory", code: 1003,
-                              userInfo: [NSLocalizedDescriptionKey: "Failed to execute query: \(errorMessage)"])
-            }
+            }()
+            
+            results.append(.init(title: title, url: url, visitTime: visitTime, browser: kind))
         }
         
         return results
     }
 }
+
 
 extension URL {
     public var _isSandboxedURL: Bool? {

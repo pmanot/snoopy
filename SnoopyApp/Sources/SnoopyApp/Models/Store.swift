@@ -15,27 +15,35 @@ public final class BrowserHistoryStore: @unchecked Sendable {
         
     }
     
-    @MainActor
-    public func fetchHistory(from startDate: Date, to endDate: Date, using config: BrowserHistoryConfiguration = .init()) throws {
-        var result: [BrowserHistoryEntry] = []
-        
-        for (kind, url) in config.urls {
-            let entriesForKind: [BrowserHistoryEntry]
-            
-            switch kind {
-                case .safari:
-                    entriesForKind = try SafariHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
-                case .chrome:
-                    entriesForKind = try ChromeHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
-                case .arc:
-                    entriesForKind = try ArcHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
+    public func fetchHistory(
+        from startDate: Date,
+        to endDate: Date,
+        using config: BrowserHistoryConfiguration = .init()
+    ) async throws {
+        let aggregated = try await withThrowingTaskGroup(of: [BrowserHistoryEntry].self) { group in
+            for (kind, url) in config.urls {
+                group.addTask {
+                    switch kind {
+                        case .safari:
+                            return try await SafariHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
+                        case .chrome:
+                            return try await ChromeHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
+                        case .arc:
+                            return try await ArcHistoryProvider.readHistory(from: startDate, to: endDate, at: url)
+                    }
+                }
             }
             
-            result.append(contentsOf: entriesForKind)
+            var combined: [BrowserHistoryEntry] = []
+            for try await subset in group {
+                combined.append(contentsOf: subset)
+            }
+            return combined
         }
         
-        entries = result.sorted { $0.visitTime > $1.visitTime }
+        entries = aggregated.sorted { $0.visitTime > $1.visitTime }
     }
+
     
     public func domains() -> [URL] {
         var seenDomains = Set<String>()

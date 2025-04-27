@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BrowserHistoryEntry: Identifiable {
+public struct BrowserHistoryEntry: Identifiable, Sendable {
     public let id: UUID = UUID()
     public let title: String
     public let url: String

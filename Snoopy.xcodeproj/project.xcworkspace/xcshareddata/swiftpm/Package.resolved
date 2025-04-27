@@ -1,6 +1,15 @@
 {
-  "originHash" : "a9958c62291631e45be50379826aa0ee3528192fe1d701c8b775afb844a6b86b",
+  "originHash" : "b560e07c00f6e17740a3f81787591fcfb8442357bf33d9d05826d426bf1bdd39",
   "pins" : [
+    {
+      "identity" : "browser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pmanot/Browser",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ca94ecf5b20bf9267e25cca18d92b60d1bb59528"
+      }
+    },
     {
       "identity" : "swallow",
       "kind" : "remoteSourceControl",
@@ -38,12 +47,30 @@
       }
     },
     {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "a34201439c74b53f0fd71ef11741af7e7caf01e1",
+        "version" : "1.4.2"
+      }
+    },
+    {
       "identity" : "swiftuix",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftUIX/SwiftUIX",
       "state" : {
         "revision" : "e984fd2e08140ad5a95d084be38fe02b774bc15d",
         "version" : "0.2.3"
+      }
+    },
+    {
+      "identity" : "web-url",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pmanot/web-url",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9306a962396a50d7d88e924afcd7ec67226763db"
       }
     }
   ],
