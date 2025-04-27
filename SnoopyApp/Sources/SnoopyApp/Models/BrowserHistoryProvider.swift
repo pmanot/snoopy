@@ -11,14 +11,14 @@ import SwallowMacrosClient
 import SQLite3
 import AppKit
 
-protocol BrowserHistoryProvider {
+public protocol BrowserHistoryProvider {
     static var kind: BrowserKind { get }
     @MainActor
     static func readHistory(from: Date, to: Date, at url: URL) async throws -> [BrowserHistoryEntry]
 }
 
 extension BrowserHistoryProvider {
-    static func readHistory(
+    public static func readHistory(
         from: Date,
         to: Date,
         at url: URL

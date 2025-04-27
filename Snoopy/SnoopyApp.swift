@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import SnoopyApp
 
 @main
-struct SnoopyApp: App {    
+struct App: SwiftUI.App {
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -18,6 +19,10 @@ struct SnoopyApp: App {
         
         Settings {
             SettingsView()
+        }
+        
+        DocumentGroup(newDocument: BrowserHistoryDocument(entries: [])) { file in
+            DocumentView(document: file.document)
         }
     }
 }

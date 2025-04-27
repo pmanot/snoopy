@@ -1,6 +1,6 @@
 import Foundation
 import SQLite3
 
-struct SafariHistoryProvider: BrowserHistoryProvider {
-    static var kind: BrowserKind { .safari }
+public struct SafariHistoryProvider: BrowserHistoryProvider {
+    public static var kind: BrowserKind { .safari }
 }

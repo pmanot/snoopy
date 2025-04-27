@@ -31,10 +31,12 @@ struct ContentView: View {
                 .environment(store)
                 .background(Material.bar)
         }
+        /*
         .popover(isPresented: $showExportSheet) {
             DomainSelectionView(domains: store.domains())
                 .presentationCompactAdaptation(.popover)
         }
+        */
     }
 }
 
@@ -105,6 +107,19 @@ extension ContentView {
                         showExportSheet = true
                     }
                     .controlSize(.large)
+                }
+            }
+            .fileExporter(
+                isPresented: $showExportSheet,
+                document: BrowserHistoryDocument(entries: filteredEntries),
+                contentType: .json
+            ) { result in
+                switch result {
+                    case .success(let url):
+                        print(url)
+                        return
+                    case .failure(let failure):
+                        print(failure)
                 }
             }
             .task {
